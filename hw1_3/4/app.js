@@ -9,10 +9,14 @@ app.use((req, res, next) => {
     next();
 })
 
-app.use(express.static(path.join(__dirname, "public")))
-
-app.use("/api", routes)
+app.use(express.static(path.join(__dirname, "public")));
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+app.use(routes);
 
 const server = app.listen(process.env.PORT, () => {
     console.log("server started on: " + server.address().port)
+
+    console.log("Example: /8?denominator=2");
+
 });
