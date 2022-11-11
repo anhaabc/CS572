@@ -2,8 +2,17 @@ const mongoose = require('mongoose');
 
 const publisherSchema = mongoose.Schema({
     name: String,
-    location: String
+    country: String,
+    established: Number,
+    location: {
+        //longitude (E/W), latitude (N/S)
+        coordinates: { 
+            type: [Number],
+            index: "2dsphere"
+        }
+    }
 });
+
 
 const gameSchema = mongoose.Schema({
     title: String,
@@ -12,10 +21,11 @@ const gameSchema = mongoose.Schema({
     price: Number,
     minPlayers: Number,
     maxPlayers: Number,
-    publisher: [publisherSchema],
+    publisher: publisherSchema,
     reviews: String,
     minAge: Number,
     designers: String
 });
+
 
 mongoose.model(process.env.DB_PLAYER_MODEL, gameSchema, process.env.DB_PLAYER_COLLECTION);

@@ -21,4 +21,5 @@ export class GamesDataService {
   public deleteGame(id: string): Observable<Game> {
     return this.http.delete<Game>(this.baseUrl + '/games/' + id);
   }
+
 }
