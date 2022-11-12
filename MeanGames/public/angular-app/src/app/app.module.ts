@@ -14,6 +14,7 @@ import { GameComponent } from './game/game.component';
 import { RegisterComponent } from './register/register.component';
 import { LoginComponent } from './login/login.component';
 import { ErrorpageComponent } from './errorpage/errorpage.component';
+import { CreateComponent } from './create/create.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { ErrorpageComponent } from './errorpage/errorpage.component';
     GameComponent,
     RegisterComponent,
     LoginComponent,
-    ErrorpageComponent
+    ErrorpageComponent,
+    CreateComponent
   ],
   imports: [
     BrowserModule,
@@ -52,6 +54,10 @@ import { ErrorpageComponent } from './errorpage/errorpage.component';
       {
         path: "login",
         component: LoginComponent
+      },
+      {
+        path: "create",
+        component: CreateComponent
       },
       {
         path: "**",

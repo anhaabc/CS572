@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 require('./gameModel');
+require('./userModel');
 
 mongoose.connect(process.env.DB_URL + process.env.DB_NAME, {useNewUrlParser: true, useUnifiedTopology: true});
 

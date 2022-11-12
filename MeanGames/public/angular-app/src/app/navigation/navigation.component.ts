@@ -29,4 +29,8 @@ export class NavigationComponent implements OnInit {
     this._router.navigate(['login']);
   }
 
+  onCreate(): void {
+    this._router.navigate(['create']);
+  }
+
 }
