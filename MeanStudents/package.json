@@ -1,0 +1,19 @@
+{
+  "name": "meanstudents",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "npm run backend | npm run frontend",
+    "backend": "nodemon",
+    "frontend": "cd public/angular-app && npm start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ankhbayar Azzaya",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^6.7.2",
+    "typescript": "^4.8.4"
+  }
+}
