@@ -1,18 +1,17 @@
 const mongoose = require('mongoose');
-
 const Game = mongoose.model(process.env.DB_PLAYER_MODEL);
+const {_debugLog, _handleError, _sendResponse, _updateResponse} = require('./utils')
 
 const _buildFindQuery = (req, res) => {
     let query = {};
     let minDist = (req.query && req.query.minDist) ? req.query.minDist : process.env.DEFAULT_GEO_MIN_DIST;
-    let maxDist = (req.query && req.query.maxDist) ? maxDist = req.query.maxDist : process.env.DEFAULT_GEO_MAX_DIST;
+    let maxDist = (req.query && req.query.maxDist) ? req.query.maxDist : process.env.DEFAULT_GEO_MAX_DIST;
 
     if (req.query && req.query.lat && req.query.lng) {
         const lat = parseFloat(req.query.lat);
         const lng = parseFloat(req.query.lng);
         const point = {
             type: "Point",
-            // coordinates: [lat, lng]
             coordinates: [lng, lat]
         };
         query = {
@@ -31,88 +30,76 @@ const _buildFindQuery = (req, res) => {
 
 
 
-module.exports.getAllGames = (req, res) => {
-    // console.log(req.query);
+const getAllGames = (req, res) => {
     let offset = (req.query && req.query.offset) ? req.query.offset : process.env.DEFAULT_OFFSET;
     let limit = (req.query && req.query.limit) ? req.query.limit : process.env.DEFAULT_LIMIT;
 
-    Game.find(_buildFindQuery(req, res)).skip(offset).limit(limit).exec((err, game) => {
-        const response = {
-            status: process.env.HTTP_STATUS_OK,
-            message: game
-        };
-        if (err) {
-            console.log("err", err);
-            response.status = process.env.HTTP_STATUS_INTERNAL_SERVER_ERROR;
-            response.message = err;
-        } else if (!game) {
-            response.status = process.env.HTTP_STATUS_NOT_FOUND;
-            response.message = {message: process.env.GAME_NOT_FOUND};
-        }
-        res.status(parseInt(response.status)).json(response.message);
-    });
+    const response = {};
+
+    Game.find(_buildFindQuery(req, res))
+        .skip(offset)
+        .limit(limit)
+        .then((game) => _checkGameExist(process.env.HTTP_STATUS_OK, game, response))
+        .catch((err) => _handleError(err, response))
+        .finally(() => _sendResponse(res, response));
 };
 
-module.exports.getOneGame = (req, res) => {
-    Game.findById(req.params.gameId).exec((err, game) => {
-        const response = {
-            status: process.env.HTTP_STATUS_OK,
-            message: game
-        };
-        if (err) {
-            response.status = process.env.HTTP_STATUS_INTERNAL_SERVER_ERROR;
-            response.message = err;
-        } else if (!game) {
-            response.status = process.env.HTTP_STATUS_NOT_FOUND;
-            response.message = {message: process.env.GAME_NOT_FOUND};
-        }
-        res.status(parseInt(response.status)).json(response.message);
-    });
-};
+const getOneGame = (req, res) => {
 
-module.exports.addOne = function(req, res) {
+    const response = {};
     
-    const newGame = {
+    Game.findById(req.params.gameId)
+        .then((game) => _checkGameExist(process.env.HTTP_STATUS_OK, game, response))
+        .catch((err) => _handleError(err, response))
+        .finally(() => _sendResponse(res, response));
+        
+};
+
+const addOne = function(req, res) {
+    
+    const newGame = _buildNewGameObject(req);
+    const response = {};
+
+    Game.create(newGame)
+        .then((game) => _checkGameExist(process.env.HTTP_STATUS_CREATED, game, response))
+        .catch((err) => _handleError(err, response))
+        .finally(() => _sendResponse(res, response));
+
+};
+
+const deleteOne = function(req, res) {
+    _debugLog("deleteOne " + req.params.gameId);
+    const response = {};
+
+    Game.findByIdAndDelete(req.params.gameId)
+        .then((deletedGame) => _checkGameExist(process.env.HTTP_STATUS_NO_CONTENT, deletedGame, response))
+        .catch((err) => _handleError(err, response))
+        .finally(() => _sendResponse(res, response));
+};
+
+///////////////////////////
+// Internal functions
+
+const _buildNewGameObject = (req) => {
+    return {
         title: req.body.title,
         year: req.body.year,
         price: req.body.price,
         rate: req.body.rate,
     };
+}
 
-    Game.create(newGame, (err, game) => {
-        const response = {
-            status: process.env.HTTP_STATUS_OK,
-            message: game
-        };
-        if (err) {
-            response.status = process.env.HTTP_STATUS_INTERNAL_SERVER_ERROR;
-            response.message = err;
-        } else if (!game) {
-            response.status = process.env.HTTP_STATUS_NOT_FOUND;
-            response.message = {message: process.env.GAME_NOT_FOUND};
-        }
-        res.status(parseInt(response.status)).json(response.message);
-    });
+const _checkGameExist = (status, game, response) => {
+    if (!game) {
+        _updateResponse(response, process.env.HTTP_STATUS_NOT_FOUND, process.env.MSG_GAME_NOT_FOUND)
+    } else {
+        _updateResponse(response, status, game)
+    }
+}
 
-};
-
-
-module.exports.deleteOne = function(req, res) {
-    console.log("deleteOne", req.params.gameId);
-    Game.findByIdAndDelete(req.params.gameId).exec((err, deletedGame) => {
-        const response = {
-            status: process.env.HTTP_STATUS_NO_CONTENT,
-            message: deletedGame
-        };
-
-        if (err) {
-            response.status = process.env.HTTP_STATUS_INTERNAL_SERVER_ERROR;
-            response.message = err;
-        } else if (!deletedGame) {
-            response.status = process.env.HTTP_STATUS_NOT_FOUND;
-            response.message = {message : process.env.GAME_NOT_FOUND};
-        }
-
-        res.status(parseInt(response.status)).json(response.message);
-    });
-};
+module.exports = {
+    getAllGames,
+    getOneGame,
+    addOne,
+    deleteOne
+}

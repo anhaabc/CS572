@@ -5,8 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "npm run backend | npm run frontend",
-    "dev": "nodemon",
-    "backend": "nodemon --inspect",
+    "dev": "nodemon --inspect",
+    "backend": "nodemon",
     "frontend": "cd ./public/angular-app && npm start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

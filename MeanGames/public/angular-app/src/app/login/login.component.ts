@@ -8,8 +8,8 @@ import { NgForm } from '@angular/forms';
 })
 export class LoginComponent implements OnInit {
 
-  username: string = "A";
-  password: string = "123";
+  username!: string;
+  password!: string;
 
   @ViewChild("loginForm")
   loginForm!: NgForm;
@@ -28,7 +28,7 @@ export class LoginComponent implements OnInit {
     })
   }
 
-  onLogin() {
+  onLogin():void {
     console.log(this.loginForm.value);
     console.log(this.loginForm.value.username);
     console.log(this.loginForm.value.password);

@@ -1,20 +1,18 @@
-<p>create works!</p>
-
-<form action="">
+<form (ngSubmit)="onSubmit()">
     <div>
-        Title <input type="text">
+        Title <input type="text" name="title" [(ngModel)]="title">
     </div>
-
     <div>
-        Year <input type="number">
+        Year <input type="number" name="year" [(ngModel)]="year">
     </div>
-
     <div>
-        Price <input type="number">
+        Price <input type="number" name="price" [(ngModel)]="price">
     </div>
-
     <div>
-        Rate <input type="number">
+        Rate <input type="number" name="rate" [(ngModel)]="rate">
+    </div>
+    <div>
+        <button type="submit">Add</button>
     </div>
 
 </form>

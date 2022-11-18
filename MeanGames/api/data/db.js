@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 require('./gameModel');
 require('./userModel');
 
-mongoose.connect(process.env.DB_URL + process.env.DB_NAME, {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect(process.env.DB_URL + process.env.DB_NAME, 
+    {useNewUrlParser: true, useUnifiedTopology: true});
 
 mongoose.connection.on("connected", () => {
     console.log(process.env.MSG_DB_ON_CONNECTED);

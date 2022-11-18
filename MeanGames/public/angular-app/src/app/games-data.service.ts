@@ -22,4 +22,8 @@ export class GamesDataService {
     return this.http.delete<Game>(this.baseUrl + '/games/' + id);
   }
 
+  public createGame(newGame: Object): Observable<Game> {
+    return this.http.post<Game>(this.baseUrl + '/games/', newGame);
+  }
+
 }
