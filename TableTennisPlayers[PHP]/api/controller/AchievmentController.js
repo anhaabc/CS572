@@ -1,78 +1,52 @@
 const mongoose = require('mongoose')
 const Player = mongoose.model(process.env.DB_PLAYER_MODEL);
+const utils = require('./Utilities');
+
+const _checkAndUpdateResponse = (obj, result, response) => {
+    if(!obj) {
+        utils._updateResponse(process.env.HTTP_STATUS_NOT_FOUND ,{"message" : process.env.MSG_PLAYER_NOT_FOUND}, response);
+    } else {
+        utils._updateResponse(process.env.HTTP_STATUS_OK, result, response);
+    }
+}
 
 //GET /players/:playerId/achievments
 const getAllAchievments = (req, res) => {
-    console.log("getAllAchievments() executed");
+    utils._debugLog("getAllAchievments() executed");
 
-    const playerId = req.params.playerId;
-    Player
-        .findById(playerId)
-        .select(process.env.DB_PLAYER_SUB_ACHIEVMENTS)
-        .exec((err, player) => {
-            const response = {
-                status: process.env.HTTP_STATUS_OK,
-                message: player.achievments
-            };
-            if (err) {
-                response.status = process.env.HTTP_STATUS_INTERNAL_SERVER_ERROR;
-                response.message = err;
-            } else if(!player) {
-                response.status = process.env.HTTP_STATUS_NOT_FOUND;
-                response.message = {"message" : process.env.MSG_PLAYER_NOT_FOUND};
-            }
-            
-            res.status(parseInt(response.status)).json(response.message);
-        })
+    const response = utils._createDefaultResponse(process.env.HTTP_STATUS_OK, []);
+
+    Player.findById(req.params.playerId)
+        .then(player => _checkAndUpdateResponse(player, player.achievments, response))
+        .catch(err => utils._handleError(err, response))
+        .finally(() => utils._sendResponse(res, response));
 };
 
 //GET /players/:playerId/achievments/:achievmentId
 const getOneAchievment = (req, res) => {
-    console.log("getOneAchievment() executed");
+    utils._debugLog("getOneAchievment() executed");
 
-    const playerId = req.params.playerId;
-    const achievmentId = req.params.achievmentId;
+    const response = utils._createDefaultResponse(process.env.HTTP_STATUS_OK, []);
 
-    Player.findById(playerId).exec((err, player) => {
-        const response = {
-            status: process.env.HTTP_STATUS_OK,
-            message: player
-        };
+    Player.findById(req.params.playerId)
+        .then(player => _checkAndUpdateResponse(player, player.achievments.id(req.params.achievmentId)))
+        .catch(err => utils._handleError(err, response))
+        .finally(() => utils._sendResponse(res, response));
 
-        if (err) {
-            response.status = process.env.HTTP_STATUS_INTERNAL_SERVER_ERROR;
-            response.message = err;
-        } else if(!player) {
-            response.status = process.env.HTTP_STATUS_NOT_FOUND;
-            response.message = {"message" : process.env.MSG_PLAYER_NOT_FOUND};
-        } else {
-            response.message = player.achievments.id(achievmentId);
-        }
-
-        res.status(parseInt(response.status)).json(response.message);
-
-    });
 };
 
 //POST /players/:playerId/achievments
 const addOneAchievment = (req, res) => {
     console.log("getAllAchievments() executed");
 
+    const response = utils._createDefaultResponse(process.env.HTTP_STATUS_NO_CONTENT, []);
+
     const playerId = req.params.playerId;
     Player
         .findById(playerId)
         .select(process.env.DB_PLAYER_SUB_ACHIEVMENTS)
-        .exec((err, player) => {
-            console.log("findById: ", player);
-            const response = {
-                status: process.env.HTTP_STATUS_NO_CONTENT,
-                message: player
-            };
-
-            if (err) {
-                response.status = process.env.HTTP_STATUS_INTERNAL_SERVER_ERROR;
-                response.message = err;
-            } else if(!player) {
+        .then(player => {
+            if(!player) {
                 response.status = process.env.HTTP_STATUS_NOT_FOUND;
                 response.message = {"message" : process.env.MSG_PLAYER_NOT_FOUND};
             } 
@@ -84,9 +58,6 @@ const addOneAchievment = (req, res) => {
                     contest: req.body.contest,
                     medal: req.body.medal
                 };
-                // if (!player.achievments) player.achievments = [];
-                // console.log("achievment: ", achievment);
-                // console.log("player.achievments: ", player.achievments);
 
                 player.achievments.push(achievment);
 
@@ -103,6 +74,9 @@ const addOneAchievment = (req, res) => {
 
             }
         })
+        .catch(err => utils._handleError(err, response))
+        .finally(() => utils._sendResponse(res, response));
+
 };
 
 //PUT /players/:playerId/achievments/:achievmentId

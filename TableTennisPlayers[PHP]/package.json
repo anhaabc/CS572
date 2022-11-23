@@ -4,7 +4,9 @@
   "description": "Personal Hobby Project",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "npm run backend | npm run frontend",
+    "frontend": "cd public/angular-app && npm start",
+    "backend": "nodemon",
     "dev": "nodemon --inspect",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -1,74 +1,56 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 const Player = mongoose.model(process.env.DB_PLAYER_MODEL);
+const utils = require('./Utilities');
+
+//////////
+const _createNewPlayerObject = (req) => {
+    return {
+        name: req.body.name,
+        country: req.body.country
+    };
+}
 
 //GET /players
 const getAllPlayers = (req, res) => {
-    console.log("getAllPlayers() executed");
+    utils._debugLog("getAllPlayers() executed");
 
-    Player.find().exec((err, player) => {
-        const response = {
-            status: process.env.HTTP_STATUS_OK,
-            message: player
-        };
-        if (err) {
-            response.status = process.env.HTTP_STATUS_INTERNAL_SERVER_ERROR;
-            response.message = err;
-        } else if(!player) {
-            response.status = process.env.HTTP_STATUS_NOT_FOUND;
-            response.message = {"message" : process.env.MSG_PLAYER_NOT_FOUND};
-        }
+    const response = utils._createDefaultResponse(process.env.HTTP_STATUS_OK, []);
 
-        res.status(parseInt(response.status)).json(response.message);
-    })
+    Player.find()
+        .then(player => response.message = player)
+        .catch(err => utils._handleError(err, response))
+        .finally(() => utils._sendResponse(res, response));
+
 };
 
 //GET /players/:playerId
 const getOnePlayer = (req, res) => {
-    console.log("getOnePlayer() executed");
+    utils._debugLog("getOnePlayer() executed");
 
-    const playerId = req.params.playerId;
-    
-    //TODO - add objectID validation
-    Player.findById(playerId).exec((err, player) => {
-        const response = {
-            status: process.env.HTTP_STATUS_OK,
-            message: player
-        };
-        if (err) {
-            response.status = process.env.HTTP_STATUS_INTERNAL_SERVER_ERROR;
-            response.message = err;
-        }
-        res.status(parseInt(response.status)).json(response.message);
-    });
-    
+    const response = utils._createDefaultResponse(process.env.HTTP_STATUS_OK, []);
+
+    Player.findById(req.params.playerId)
+        .then(player => response.message = player)
+        .catch(err => utils._handleError(err, response))
+        .finally(() => utils._sendResponse(res, response));
 };
 
 //POST /players 
 const addOnePlayer = (req, res) => {
-    console.log("addOnePlayer() executed");
+    utils._debugLog("addOnePlayer() executed");
 
-    const newPlayer = {
-        name: req.body.name,
-        country: req.body.country
-    };
-    Player.create(newPlayer, (err, player) => {
-        const response = {
-            status: process.env.HTTP_STATUS_OK,
-            message: player
-        };
+    const newPlayer = _createNewPlayerObject(req);
+    const response = utils._createDefaultResponse(process.env.HTTP_STATUS_OK, []);
 
-        if (err) {
-            response.status = process.env.HTTP_STATUS_INTERNAL_SERVER_ERROR;
-            response.message = err;
-        }
-
-        res.status(parseInt(response.status)).json(response.message);
-    })
+    Player.create(newPlayer)
+        .then(player => response.message = player)
+        .catch(err => utils._handleError(err, response))
+        .finally(() => utils._sendResponse(res, response));
 }
 
 //PUT /player/:playerId
 const updateOnePlayerFull = (req, res) => {
-    console.log("updateOnePlayerFull() executed");
+    utils._debugLog("updateOnePlayerFull() executed");
 
     const playerId = req.params.playerId;
 
@@ -113,7 +95,7 @@ const updateOnePlayerFull = (req, res) => {
 
 //PATCH /players/:playerId
 const updateOnePlayerPartial = (req, res) => {
-    console.log("updateOnePlayerPartial() executed");
+    utils._debugLog("updateOnePlayerPartial() executed");
 
     const playerId = req.params.playerId;
 
@@ -159,27 +141,17 @@ const updateOnePlayerPartial = (req, res) => {
 
 //DELETE /players/:playerId
 const deleteOnePlayer = (req, res) => {
-    console.log("deleteOnePlayer() executed");
+    utils._debugLog("deleteOnePlayer() executed");
     
-    const playerId = req.params.playerId;
-    Player
-        .findByIdAndDelete(playerId)
-        .exec((err, deletedPlayer) => {
-            const response = {
-                status: process.env.HTTP_STATUS_NO_CONTENT,
-                message: deletedPlayer
-            };
+    const response = utils._createDefaultResponse(process.env.HTTP_STATUS_NO_CONTENT, []);
 
-            if (err) {
-                response.status = process.env.HTTP_STATUS_INTERNAL_SERVER_ERROR;
-                response.message = err;
-            } else if (!deletedPlayer) {
-                response.status = process.env.HTTP_STATUS_NOT_FOUND;
-                response.message = {"message" : process.env.MSG_PLAYER_NOT_FOUND};
-            }
-
-            res.status(parseInt(response.status)).json(response.message);
-        });
+    Player.findByIdAndDelete(req.params.playerId)
+        .then(deletedPlayer => {
+            if (!deletedPlayer)
+                utils._updateResponse(process.env.HTTP_STATUS_NOT_FOUND, {"message" : process.env.MSG_PLAYER_NOT_FOUND})
+        })
+        .catch(err => utils._handleError(err, response))
+        .finally(() => utils._sendResponse(res, response));
 }
 
 module.exports = {
