@@ -27,6 +27,37 @@ const getOneAchievment = (req, res) => {
 
 };
 
+const _checkPlayer = (player, response) => {
+    return new Promise((resolve, reject) => {
+        if(!player) {
+            utils._updateResponse(process.env.HTTP_STATUS_NOT_FOUND, {"message" : process.env.MSG_PLAYER_NOT_FOUND}, response);
+            reject();
+        } else {
+            resolve(player);
+        }
+    })
+}
+
+
+const _saveAchievment = (req, player, response) => {
+    utils._debugLog("_saveAchievment executing")
+    return new Promise((resolve, reject) => {
+        player.achievments.push({
+            contest: req.body.contest,
+            medal: req.body.medal
+        });
+        player.save((err, savedPlayer) => {
+            if (err) {
+                reject(err);
+            } else {
+                utils._updateResponse(process.env.HTTP_STATUS_OK, savedPlayer.achievments, response);
+                resolve(player);
+            }
+        });
+    })
+
+}
+
 //POST /players/:playerId/achievments
 const addOneAchievment = (req, res) => {
     console.log("getAllAchievments() executed");
@@ -37,35 +68,9 @@ const addOneAchievment = (req, res) => {
     Player
         .findById(playerId)
         .select(process.env.DB_PLAYER_SUB_ACHIEVMENTS)
-        .then(player => {
-            if(!player) {
-                response.status = process.env.HTTP_STATUS_NOT_FOUND;
-                response.message = {"message" : process.env.MSG_PLAYER_NOT_FOUND};
-            } 
-
-            if (response.status !== process.env.HTTP_STATUS_NO_CONTENT) {
-                res.status(parseInt(response.status)).json(response.message);
-            } else {
-                const achievment = {
-                    contest: req.body.contest,
-                    medal: req.body.medal
-                };
-
-                player.achievments.push(achievment);
-
-                player.save((err, savedPlayer) => {
-                    if (err) {
-                        response.status = process.env.HTTP_STATUS_INTERNAL_SERVER_ERROR;
-                        response.message = err;
-                    } else {
-                        response.status = process.env.HTTP_STATUS_OK;
-                        response.message = savedPlayer;
-                    }
-                    res.status(parseInt(response.status)).json(response.message);
-                });
-
-            }
-        })
+        .then(player => _checkPlayer(player, response))
+        .then(player => _saveAchievment(req, player, response))
+        .then(player => utils._debugLog(player))
         .catch(err => utils._handleError(err, response))
         .finally(() => utils._sendResponse(res, response));
 
@@ -196,6 +201,7 @@ const deleteOneAchievment = (req, res) => {
                         response.status = process.env.HTTP_STATUS_INTERNAL_SERVER_ERROR;
                         response.message = err;
                     } else {
+                        response.status = process.env.HTTP_STATUS_OK;
                         response.message = savedPlayer.achievments;
                     }
                     res.status(parseInt(response.status)).json(response.message);

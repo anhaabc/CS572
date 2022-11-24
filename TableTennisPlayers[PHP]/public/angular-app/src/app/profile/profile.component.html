@@ -1,11 +1,76 @@
-<h1>{{player.name}} </h1> 
-Country: {{player.country}}<br/>
+<div class="row m-2">
+    <h3>Player Detail</h3>
+</div>
+<div  *ngIf="!updateEnabled" class="row ms-4">
+    <div class="col-sm">
+        <h1>{{player.name}} </h1> 
+        <p>
+            Country: {{player.country}}
+        </p>
+        <p>
+            <button class="btn btn-sm btn-primary" type="button" (click)="onUpdateEnable()">Edit</button>
+        </p>
+    </div>
+</div>
 
+
+<div *ngIf="updateEnabled" class="row mt-4 ms-4">
+    <div class="col-sm">
+        <form (ngSubmit)="onUpdateProfile()">
+            <div class="mb-3 row">
+                <label for="name" class="col-sm-1 col-form-label">Name</label>
+                <div class="col-sm-10">
+                    <input class="form-control w-25" type="text" id="name" name="name" [(ngModel)]="player.name">
+                </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="country" class="col-sm-1 col-form-label">Country</label>
+                <div class="col-sm-10">
+                    <input class="form-control w-25" type="text" id="country" name="country" [(ngModel)]="player.country">
+                </div>
+            </div>
+            <div>
+                <button class="btn btn-sm btn-primary" type="submit">Update</button>
+                <button class="ms-4 btn btn-sm btn-outline-danger" type="button" (click)="onUpdateEnable()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<hr>
+<div class="row m-2">
+    <h3>Achievments</h3>
+</div>
 <ul>
     <li *ngFor="let achievment of player.achievments">
-        {{achievment.contest}} <br>
-        {{achievment.medal}} <br>
+        {{achievment.contest}} - {{achievment.medal}} <button class="btn btn-sm btn-danger btn-close" (click)="onAchievmentDelete(achievment._id)" ></button>
     </li>
 </ul>
 
-<button (click)="onDelete()">Delete My Profile</button>
+
+<form (ngSubmit)="onAddAchievment()">
+    <div class="ms-4 mb-3 row">
+        <label for="contest" class="col-sm-1 col-form-label">Contest</label>
+        <div class="col-sm-10">
+            <input class="form-control w-25" type="text" id="contest" name="contest" [(ngModel)]="contest">
+        </div>
+    </div>
+    <div class="ms-4 mb-3 row">
+        <label for="medal" class="col-sm-1 col-form-label">Medal</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control w-25" id="medal" name="medal" [(ngModel)]="medal">
+        </div>
+    </div>
+
+    <div class="ms-4 w-25">
+        <button class="btn btn-sm btn-success" type="submit">Add Achievment</button>
+    </div>
+</form>
+
+<hr>
+
+<button  class="ms-4 btn btn-sm btn-danger" (click)="onDelete()">Delete My Profile</button>
+
+<br>
+<br>
+<br>

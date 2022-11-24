@@ -90,7 +90,6 @@ const updateOnePlayerPartial = (req, res) => {
 
     Player
         .findById(playerId)
-        .select(process.env.DB_PLAYER_COLLECTION)
         .exec((err, player) => {
             const response = {
                 status: process.env.HTTP_STATUS_NO_CONTENT,

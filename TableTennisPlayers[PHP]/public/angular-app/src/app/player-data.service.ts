@@ -22,8 +22,13 @@ export class PlayerDataService {
   }
 
   public deletePlayer(id: string): Observable<Player> {
-    const headers = { 'Authorization': 'Bearer ' + localStorage.getItem("token")}
+    const headers = { 'authorization': 'Bearer ' + localStorage.getItem("token")}
     return this.http.delete<Player>(this.playersApiUrl + id, { headers } );
+  }
+
+  public updatePlayer(id: string, updatedPlayer: Object): Observable<Player> {
+    const headers = { 'authorization': 'Bearer ' + localStorage.getItem("token")}
+    return this.http.patch<Player>(this.playersApiUrl + id, updatedPlayer, { headers } );
   }
 
   public registerPlayer(newPlayer: Object): Observable<Player> {
