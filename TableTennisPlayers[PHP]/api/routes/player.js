@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const playerController = require('../controller/PlayerController');
 const achievmentRoute = require('./achievment');
+const authController = require('../controller/AuthenticationController')
 
 router
     .route('/')
@@ -11,12 +12,11 @@ router
 router
     .route('/:playerId')
     .get(playerController.getOnePlayer)
-    .put(playerController.updateOnePlayerFull)
-    .patch(playerController.updateOnePlayerPartial)
-    .delete(playerController.deleteOnePlayer);
-
+    .put(authController.authenticate, playerController.updateOnePlayerFull)
+    .patch(authController.authenticate, playerController.updateOnePlayerPartial)
+    .delete(authController.authenticate, playerController.deleteOnePlayer);
+    
 //Sub documents
 router.use('/:playerId/achievments', achievmentRoute)
-
 
 module.exports = router;

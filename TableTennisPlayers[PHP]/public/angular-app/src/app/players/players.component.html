@@ -1,0 +1,7 @@
+<ul>
+    <li *ngFor="let player of players">
+        <a routerLink="/player/{{player._id}}">
+            {{player.name}}
+        </a>
+    </li>
+</ul>

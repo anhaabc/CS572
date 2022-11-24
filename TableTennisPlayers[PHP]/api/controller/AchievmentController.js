@@ -2,14 +2,6 @@ const mongoose = require('mongoose')
 const Player = mongoose.model(process.env.DB_PLAYER_MODEL);
 const utils = require('./Utilities');
 
-const _checkAndUpdateResponse = (obj, result, response) => {
-    if(!obj) {
-        utils._updateResponse(process.env.HTTP_STATUS_NOT_FOUND ,{"message" : process.env.MSG_PLAYER_NOT_FOUND}, response);
-    } else {
-        utils._updateResponse(process.env.HTTP_STATUS_OK, result, response);
-    }
-}
-
 //GET /players/:playerId/achievments
 const getAllAchievments = (req, res) => {
     utils._debugLog("getAllAchievments() executed");
@@ -17,7 +9,7 @@ const getAllAchievments = (req, res) => {
     const response = utils._createDefaultResponse(process.env.HTTP_STATUS_OK, []);
 
     Player.findById(req.params.playerId)
-        .then(player => _checkAndUpdateResponse(player, player.achievments, response))
+        .then(player => utils._checkPlayerAndUpdateResponse(player, player.achievments, response))
         .catch(err => utils._handleError(err, response))
         .finally(() => utils._sendResponse(res, response));
 };
@@ -29,7 +21,7 @@ const getOneAchievment = (req, res) => {
     const response = utils._createDefaultResponse(process.env.HTTP_STATUS_OK, []);
 
     Player.findById(req.params.playerId)
-        .then(player => _checkAndUpdateResponse(player, player.achievments.id(req.params.achievmentId)))
+        .then(player => utils._checkPlayerAndUpdateResponse(player, player.achievments.id(req.params.achievmentId), response))
         .catch(err => utils._handleError(err, response))
         .finally(() => utils._sendResponse(res, response));
 

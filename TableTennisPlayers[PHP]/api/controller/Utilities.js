@@ -8,6 +8,7 @@ const _sendResponse = (res, response) => {
 }
 
 const _handleError = (err, response) => {
+    _debugLog(err);
     response.status = process.env.HTTP_STATUS_INTERNAL_SERVER_ERROR;
     response.message = err;
 }
@@ -24,10 +25,19 @@ const _updateResponse = (status, message, response) => {
     if (message) response.message = message;
 }
 
+const _checkPlayerAndUpdateResponse = (player, message, response) => {
+    if(!player) {
+        _updateResponse(process.env.HTTP_STATUS_NOT_FOUND ,{"message" : process.env.MSG_PLAYER_NOT_FOUND}, response);
+    } else {
+        _updateResponse(process.env.HTTP_STATUS_OK, message, response);
+    }
+}
+
 module.exports = {
     _debugLog,
     _sendResponse,
     _handleError,
     _createDefaultResponse,
-    _updateResponse
+    _updateResponse,
+    _checkPlayerAndUpdateResponse
 }

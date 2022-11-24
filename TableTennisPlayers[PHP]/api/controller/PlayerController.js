@@ -1,23 +1,15 @@
 const mongoose = require('mongoose');
 const Player = mongoose.model(process.env.DB_PLAYER_MODEL);
 const utils = require('./Utilities');
-
-//////////
-const _createNewPlayerObject = (req) => {
-    return {
-        name: req.body.name,
-        country: req.body.country
-    };
-}
+const bcrypt = require('bcrypt');
 
 //GET /players
 const getAllPlayers = (req, res) => {
-    utils._debugLog("getAllPlayers() executed");
-
+    utils._debugLog("getAllPlayers() executing");
     const response = utils._createDefaultResponse(process.env.HTTP_STATUS_OK, []);
-
+    //TODO offset,count
     Player.find()
-        .then(player => response.message = player)
+        .then(player => utils._checkPlayerAndUpdateResponse(player, player, response))
         .catch(err => utils._handleError(err, response))
         .finally(() => utils._sendResponse(res, response));
 
@@ -25,25 +17,22 @@ const getAllPlayers = (req, res) => {
 
 //GET /players/:playerId
 const getOnePlayer = (req, res) => {
-    utils._debugLog("getOnePlayer() executed");
-
+    utils._debugLog("getOnePlayer() executing");
     const response = utils._createDefaultResponse(process.env.HTTP_STATUS_OK, []);
-
     Player.findById(req.params.playerId)
-        .then(player => response.message = player)
+        .then(player => utils._checkPlayerAndUpdateResponse(player, player, response))
         .catch(err => utils._handleError(err, response))
         .finally(() => utils._sendResponse(res, response));
 };
 
 //POST /players 
 const addOnePlayer = (req, res) => {
-    utils._debugLog("addOnePlayer() executed");
-
-    const newPlayer = _createNewPlayerObject(req);
+    utils._debugLog("addOnePlayer() executing");
     const response = utils._createDefaultResponse(process.env.HTTP_STATUS_OK, []);
-
-    Player.create(newPlayer)
-        .then(player => response.message = player)
+    bcrypt.genSalt(parseInt(process.env.NUMBER_OF_ROUNDS))
+        .then(salt => _hashPassword(req.body.password, salt))
+        .then(passwordHash => _createPlayer(req, passwordHash))
+        .then(player => utils._updateResponse(process.env.HTTP_STATUS_OK, player, response))
         .catch(err => utils._handleError(err, response))
         .finally(() => utils._sendResponse(res, response));
 }
@@ -152,6 +141,37 @@ const deleteOnePlayer = (req, res) => {
         })
         .catch(err => utils._handleError(err, response))
         .finally(() => utils._sendResponse(res, response));
+}
+
+
+//* Player related functions */
+
+const _createNewPlayerObject = (req, passwordHash) => {
+    return {
+        username: req.body.username,
+        password: passwordHash,
+        name: req.body.name,
+        country: req.body.country
+    };
+}
+
+const _hashPassword = (password, salt) => {
+    utils._debugLog("_hashPassword() executing");
+    return new Promise((resolve, reject) => {
+        bcrypt.hash(password, salt)
+                .then(passwordHash => resolve(passwordHash))
+                .catch(err => reject())
+    })
+}
+
+const _createPlayer = (req, passwordHash) => {
+    utils._debugLog("_createPlayer() executing");
+    return new Promise((resolve, reject) => {
+        const newPlayer = _createNewPlayerObject(req, passwordHash);
+        Player.create(newPlayer)
+            .then(player => resolve(player))
+            .catch(err => reject());
+    });
 }
 
 module.exports = {

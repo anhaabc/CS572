@@ -1,0 +1,11 @@
+<h1>{{player.name}} </h1> 
+Country: {{player.country}}<br/>
+
+<ul>
+    <li *ngFor="let achievment of player.achievments">
+        {{achievment.contest}} <br>
+        {{achievment.medal}} <br>
+    </li>
+</ul>
+
+<!-- <button (click)="onDelete()">Delete</button> -->
