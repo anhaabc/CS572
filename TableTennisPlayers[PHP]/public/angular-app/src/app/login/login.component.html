@@ -1,3 +1,4 @@
+<div *ngIf="loginFailed">{{loginFailedMsg}}</div>
 <form (ngSubmit)="onSubmit()">
     <div>
         Username <input type="text" name="username" [(ngModel)]="username">

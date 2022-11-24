@@ -1,7 +1,8 @@
 <nav>
     <button (click)="onHome()">Home</button>
     <button (click)="onPlayers()">Players</button>
-    <button (click)="onProfile()">Profile</button>
-    <button (click)="onRegister()">Register</button>
-    <button (click)="onLogin()">Login</button>
+    <button *ngIf="authService.isLoggedIn" (click)="onProfile()">Profile</button>
+    <button *ngIf="!authService.isLoggedIn" (click)="onRegister()">Register</button>
+    <button *ngIf="!authService.isLoggedIn" (click)="onLogin()">Login</button>
+    <button *ngIf="authService.isLoggedIn" (click)="onLogout()">Logout</button>
 </nav>

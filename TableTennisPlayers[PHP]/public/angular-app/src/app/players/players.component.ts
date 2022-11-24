@@ -23,6 +23,8 @@ export class PlayersComponent implements OnInit {
 export class Player {
   #_id!: string;
   #name!: string;
+  #username!: string;
+  #password!: string;
   #country!: string;
   #achievments!: Achievments[];
   constructor() {}
@@ -32,6 +34,12 @@ export class Player {
 
   get name() {return this.#name;}
   set name(name: string) { this.#name= name;}
+
+  get username() {return this.#username;}
+  set username(username: string) { this.#username= username;}
+
+  get password() {return this.#password;}
+  set password(password: string) { this.#password= password;}
 
   get country() {return this.#country;}
   set country(country: string) { this.#country= country;}

@@ -18,8 +18,6 @@ export class PlayerComponent implements OnInit {
       const playerId = this.route.snapshot.params['playerId'];
       this.playerService.getPlayer(playerId).subscribe(player => {
         this.player = player;
-        console.log(player);
-        
       });
   }
 
