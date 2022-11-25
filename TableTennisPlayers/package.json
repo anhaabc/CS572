@@ -1,0 +1,22 @@
+{
+  "name": "tabletennis",
+  "version": "1.0.0",
+  "description": "Personal Hobby Project",
+  "main": "app.js",
+  "scripts": {
+    "start": "npm run backend | npm run frontend",
+    "frontend": "cd public/angular-app && npm start",
+    "backend": "nodemon",
+    "dev": "nodemon --inspect",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ankhbayar Azzaya",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.7.1"
+  }
+}
